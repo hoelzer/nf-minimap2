@@ -2,14 +2,24 @@
 
 A small example workflow to introduce Nextflow and Conda or Docker integration. 
 
+## Setup
+
 First, install [Nextflow](https://nextflow.io/), [Conda](https://docs.conda.io/en/latest/miniconda.html), and [Docker](https://docs.docker.com/engine/installation/).
 
-Second, get example data via:
+Second, clone this repository and change into the new dir:
+```bash
+git clone https://github.com/hoelzer/nf-minimap2.git
+cd nf-minimap2
+```
+
+Third, get some example data via:
 ```bash
 wget https://raw.githubusercontent.com/KleistLab/GInPipe/main/demo/demo_reference.fasta .
 wget https://raw.githubusercontent.com/KleistLab/GInPipe/main/demo/demo_samples.fasta .
 ```
 (obtained from https://github.com/KleistLab/GInPipe/tree/main/demo, can be also found in the `data` folder in this repository)
+
+## Run
 
 Then run the workflow:
 ```bash
@@ -22,6 +32,8 @@ The workflow will align the FASTA sequences in the query file vs. the target seq
 ```bash
 nextflow run main.nf
 ```
+
+## Use Conda instead of Docker
 
 Per default, the workflow runs with `Docker` support using the image defined in the `main.nf` file. However, you can also use `Conda`. To do so, go in the `main.nf` file and comment the container definition and un-comment the conda defintion pointing to the `envs/minimap2.yaml` file like that:
 
@@ -38,6 +50,8 @@ process ALIGN {
 ```
 
 When you start the workflow now, `Nextflow` will check for an available `Conda` environment and if it does not exist, create it for you. It just need to be created once. 
+
+## Run the process in a separate module
 
 Per default, the workflow integrates the process `ALIGN` in the `main.nf` but that is **not** best practice. It is better to modularize processes. See the `align.nf` file in the `modules` folder. You can switch to using that process by simply commenting the whole `ALIGN` process code block in the `main.nf` file and un-commenting the `include` statement like that:
 
