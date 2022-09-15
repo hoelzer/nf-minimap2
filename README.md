@@ -22,3 +22,52 @@ The workflow will align the FASTA sequences in the query file vs. the target seq
 ```bash
 nextflow run main.nf
 ```
+
+Per default, the workflow runs with `Docker` support using the image defined in the `main.nf` file. However, you can also use `Conda`. To do so, go in the `main.nf` file and comment the container definition and un-comment the conda defintion pointing to the `envs/minimap2.yaml` file like that:
+
+```java
+process ALIGN {
+
+    // pull an image from Dockerhub or us already available local version.
+    //container 'mhoelzer/minimap2:2.24'
+
+    // use a conda env. If it does not exist, it's autonatically created.
+    conda 'envs/minimap2.yaml'
+...
+}
+```
+
+When you start the workflow now, `Nextflow` will check for an available `Conda` environment and if it does not exist, create it for you. It just need to be created once. 
+
+Per default, the workflow integrates the process `ALIGN` in the `main.nf` but that is **not** best practice. It is better to modularize processes. See the `align.nf` file in the `modules` folder. You can switch to using that process by simply commenting the whole `ALIGN` process code block in the `main.nf` file and un-commenting the `include` statement like that:
+
+```java
+// [1] here we directly include the process in the main workflow file
+/*
+process ALIGN {
+
+    // pull an image from Dockerhub or us already available local version.
+    container 'mhoelzer/minimap2:2.24'
+
+    // use a conda env. If it does not exist, it's autonatically created.
+    //conda 'envs/minimap2.yaml'
+
+    publishDir "results", mode: 'copy', pattern: "*.sam"
+
+    input: 
+    tuple path(query), path(reference)
+
+    output:
+    path("${query.simpleName}.sam")
+
+    script:
+    """
+    minimap2 -ax asm5 ${reference} ${query} > ${query.simpleName}.sam
+    """
+}
+*/
+// [2] but it's better to separate main workflow and processes:
+include { ALIGN } from './modules/align.nf'
+```
+
+Then, run the workflow again. 
