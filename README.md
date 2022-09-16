@@ -1,6 +1,6 @@
 # Nextflow example using `minimap2`
 
-A small example workflow to introduce `Nextflow` and `Conda` or `Docker` integration. We will use the famous mapping tool [`minimap2`](https://github.com/lh3/minimap2) as example tool. 
+A small example workflow to introduce `Nextflow` and `Conda` or `Docker` integration. We will use the famous mapping tool [`minimap2`](https://github.com/lh3/minimap2) as an example. 
 
 ## Setup
 
@@ -29,7 +29,7 @@ We will show examples of using `minimap2` directly on the command line in a `Con
 
 ```bash
 # create a new Conda environment and install minimap2
-conda create -n minimap2 -c bioconda minimap2:2.24
+conda create -n minimap2 -c conda-forge -c bioconda minimap2=2.24
 # activate the new env
 conda activate minimap2
 # does the tool work?
@@ -114,7 +114,7 @@ process ALIGN {
 }
 ```
 
-When you start the workflow now, `Nextflow` will check for an available `Conda` environment and if it does not exist, create it for you. It just need to be created once. 
+When you start the workflow now, `Nextflow` will check for an available `Conda` environment and if it does not exist, create it for you. It just needs to be created once. 
 
 #### Run the process in a separate module
 
