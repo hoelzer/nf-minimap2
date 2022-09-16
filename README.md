@@ -21,9 +21,11 @@ wget https://raw.githubusercontent.com/KleistLab/GInPipe/main/demo/demo_samples.
 
 ## Run
 
-We will show examples of using `minimap2` directly on the command line in a `Conda` environment and within a small `Nextflow` pipeline. Within `Nextflow`, we will per default use a `Docker` container that holds `minimap2` and switch as an alternative also to `Conda`. 
+We will show examples of using `minimap2` directly on the command line in a `Conda` environment and via a `Docker` container. Then we use a small `Nextflow` pipeline as well. Within `Nextflow`, we will per default use again the `Docker` container that holds `minimap2` and switch as an alternative back to `Conda`. 
 
-### Manuallly
+### Manually
+
+#### Conda execution
 
 ```bash
 # create a new Conda environment and install minimap2
@@ -48,6 +50,39 @@ minimap2 -ax asm5 $REFERENCE $QUERY > $(basename $QUERY .fasta).sam
 ```
 
 When the calculation is done you can inspect the `SAM` file. What does it tell you? Did the alignment work? 
+
+#### Docker execution
+
+```bash
+# first download/ pull the container image
+docker pull mhoelzer/minimap2:2.24
+# run a container deployed from the image and start an interactive session 
+# when the interactive session is stopped, delete the container (keep clean) 
+docker run --rm -it mhoelzer/minimap2:2.24 /bin/bash 
+# you should see something like that:
+(base) root@had8932h0r82f3j0f2:/ minimap2 --version 
+# execute a command directly from a deployed container
+docker run --rm mhoelzer/minimap2:2.24 minimap2 --version
+
+# now, if we want to use data on the local system inside of the container, we need to 'mount' it
+# otherwise, Docker can not 'see' the data in its encapsulated environment
+# first, switch to the folder where you downloaded the example data files (*.fasta)
+docker run --rm -v $PWD:/$PWD -w $PWD mhoelzer/minimap2:2.24 minimap2 -asm5 demo_reference.fasta demo_samples.fasta > demo_samples.sam
+```
+
+As you can see, it's a bit complicated to handle files in a `Docker` container. In the example, we take advantage of the system variable `$PWD` to get the path where we are currently located and then we _mount_ the same path into the `Docker` container via `-v`. Then, we use `-w` to also set the working directory inside of the container to that same path (otherwise we would start at the root `/` per default). Then, we can find the files locally located at `$PWD` on our system and work w/ them. 
+
+#### Build the Docker container yourself
+
+Instead of using the pre-build and uploaded container image, you can also build the `Docker` yourself. In this repository in the `container` folder you also find the `Dockerfile` that holds the instructions to build a container with `minimap2`. Internally, we also use `Conda` to install all dependencies but we store everything in the container that can be more easily shared and executed. 
+
+```bash
+cd container
+docker build -t my-minimap2-container .
+
+# you can list all container images on your system via
+docker images
+```
 
 ### Nextflow
 
